@@ -1,0 +1,175 @@
+<div class="login-page">
+  <div class="login-card card">
+    <h1 class="login-title">{{ 'AUTH.REGISTER_TITLE' | translate }}</h1>
+    <p class="login-subtitle">{{ 'AUTH.REGISTER_SUBTITLE' | translate }}</p>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="name">{{ 'AUTH.NAME' | translate }}</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="{{ 'AUTH.NAME' | translate }}"
+          autocomplete="name"
+        />
+        @if (nameControl().touched && nameControl().invalid) {
+          <span class="error">{{ 'AUTH.NAME_REQUIRED' | translate }}</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="email">{{ 'AUTH.EMAIL' | translate }}</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+        />
+        @if (emailControl().touched && emailControl().invalid) {
+          @if (emailControl().errors?.['required']) {
+            <span class="error">{{ 'AUTH.EMAIL_REQUIRED' | translate }}</span>
+          } @else {
+            <span class="error">{{ 'AUTH.EMAIL_INVALID' | translate }}</span>
+          }
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">{{ 'AUTH.PASSWORD' | translate }}</label>
+        <div class="password-wrap">
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="new-password"
+          />
+          <button
+            type="button"
+            class="eye-btn"
+            (click)="togglePassword()"
+            aria-label="Toggle password visibility"
+          >
+            @if (showPassword) {
+              <!-- Eye off -->
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-6 0-10-8-10-8a21.86 21.86 0 0 1 5.06-6.7" />
+                <path d="M1 1l22 22" />
+                <path d="M9.9 4.24A10.12 10.12 0 0 1 12 4c6 0 10 8 10 8a21.8 21.8 0 0 1-3.3 5.2" />
+                <path d="M14.12 14.12a3 3 0 0 1-4.24-4.24" />
+              </svg>
+            } @else {
+              <!-- Eye -->
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            }
+          </button>
+        </div>
+
+        @if (passwordControl().touched && passwordControl().invalid) {
+          @if (passwordControl().errors?.['minlength']) {
+            <span class="error">{{ 'AUTH.PASSWORD_MIN_LENGTH_8' | translate }}</span>
+          } @else {
+            <span class="error">{{ 'AUTH.PASSWORD_REQUIRED' | translate }}</span>
+          }
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password_confirmation">{{ 'AUTH.PASSWORD_CONFIRMATION' | translate }}</label>
+        <div class="password-wrap">
+          <input
+            id="password_confirmation"
+            [type]="showPasswordConfirmation ? 'text' : 'password'"
+            formControlName="password_confirmation"
+            placeholder="••••••••"
+            autocomplete="new-password"
+          />
+          <button
+            type="button"
+            class="eye-btn"
+            (click)="togglePasswordConfirmation()"
+            aria-label="Toggle password confirmation visibility"
+          >
+            @if (showPasswordConfirmation) {
+              <!-- Eye off -->
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-6 0-10-8-10-8a21.86 21.86 0 0 1 5.06-6.7" />
+                <path d="M1 1l22 22" />
+                <path d="M9.9 4.24A10.12 10.12 0 0 1 12 4c6 0 10 8 10 8a21.8 21.8 0 0 1-3.3 5.2" />
+                <path d="M14.12 14.12a3 3 0 0 1-4.24-4.24" />
+              </svg>
+            } @else {
+              <!-- Eye -->
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            }
+          </button>
+        </div>
+
+        @if (form.hasError('mismatch') && passwordConfirmationControl().touched) {
+          <span class="error">{{ 'AUTH.PASSWORDS_DO_NOT_MATCH' | translate }}</span>
+        } @else if (passwordConfirmationControl().touched && passwordConfirmationControl().invalid) {
+          <span class="error">{{ 'AUTH.PASSWORD_CONFIRMATION_REQUIRED' | translate }}</span>
+        }
+      </div>
+
+      @if (errorMessage) {
+        <p class="error-msg">{{ errorMessage }}</p>
+      }
+
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="form.invalid || loading">
+        {{ loading ? ('COMMON.LOADING' | translate) : ('AUTH.REGISTER' | translate) }}
+      </button>
+
+      <!-- Back to sign in -->
+      <p class="auth-links">
+        {{ 'AUTH.ALREADY_HAVE_ACCOUNT' | translate }}
+        <a routerLink="/login" class="auth-link">{{ 'AUTH.SIGN_IN' | translate }}</a>
+      </p>
+    </form>
+  </div>
+</div>
+
