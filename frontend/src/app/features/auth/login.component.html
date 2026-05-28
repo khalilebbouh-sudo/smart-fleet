@@ -1,9 +1,18 @@
 <div class="login-page">
-  <div class="login-card card">
-    <h1 class="login-title">{{ 'AUTH.SIGN_IN_TITLE' | translate }}</h1>
-    <p class="login-subtitle">{{ 'AUTH.SIGN_IN_SUBTITLE' | translate }}</p>
+  <div class="login-shell">
+    <div class="login-card card">
+      <div class="brand">
+        <img class="brand-logo" src="assets/smart-fleet-logo.png" alt="Smart Fleet" />
+        <div class="brand-text">
+          <div class="brand-name">SMART FLEET</div>
+          <div class="brand-tagline">{{ 'APP.TAGLINE' | translate }}</div>
+        </div>
+      </div>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <h1 class="login-title">{{ 'AUTH.SIGN_IN_TITLE' | translate }}</h1>
+      <p class="login-subtitle">{{ 'AUTH.SIGN_IN_SUBTITLE' | translate }}</p>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label for="email">{{ 'AUTH.EMAIL' | translate }}</label>
         <input
@@ -81,7 +90,8 @@
         {{ 'AUTH.NO_ACCOUNT' | translate }}
         <a routerLink="/register" class="auth-link">{{ 'AUTH.REGISTER' | translate }}</a>
       </p>
-    </form>
+      </form>
+    </div>
   </div>
 </div>
 

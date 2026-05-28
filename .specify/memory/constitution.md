@@ -1,50 +1,108 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Project Constitution
+Project Name: Smart Fleet Management
 
-## Core Principles
+## Purpose
+Smart Fleet Management is a web-based system designed to manage a company's vehicle fleet efficiently.  
+The application allows administrators to manage vehicles, drivers, maintenance operations, and fuel consumption.
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+---
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+## Core Architecture Principles
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### 1. Clean Architecture
+The system must follow a modular and maintainable architecture.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Backend:
+- Laravel MVC architecture
+- Controllers handle HTTP requests
+- Models manage database entities
+- Services handle business logic
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+Frontend:
+- Angular modular architecture
+- Separate modules for each feature
+- Reusable components and services
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+---
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### 2. Separation of Concerns
+Each layer of the application must have a clear responsibility.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+- Controllers → handle requests and responses
+- Services → contain business logic
+- Models → interact with the database
+- Components → handle UI logic
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+---
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+### 3. API-First Design
+The backend must expose a RESTful API that will be consumed by the Angular frontend.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+API rules:
+- JSON responses
+- Clear endpoints
+- Standard HTTP methods (GET, POST, PUT, DELETE)
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+---
+
+### 4. Code Quality
+All code must follow best practices.
+
+Guidelines:
+- Use meaningful variable and function names
+- Follow Laravel and Angular coding conventions
+- Write readable and maintainable code
+- Avoid duplicated logic
+
+---
+
+### 5. Security
+Security must be considered in all layers.
+
+Requirements:
+- Authentication system
+- Input validation
+- Protected API routes
+- Secure database interactions
+
+---
+
+### 6. Scalability
+The system must be designed to allow future improvements.
+
+Possible future features:
+- GPS vehicle tracking
+- AI-based maintenance prediction
+- Advanced fleet analytics
+- Mobile application integration
+
+---
+
+## Technology Stack
+
+### Frontend
+Angular
+
+### Backend
+Laravel REST API
+
+### Database
+MySQL
+
+---
+
+## Development Tools
+
+- Cursor IDE
+- Spec-Kit
+- Git
+- XAMPP
+
+### Versions mémorisées (environnement de dev)
+
+- Node.js: v20.20.0 | npm: 10.8.2
+- Angular CLI: 17.8.2
+- PHP: 8.2.12 | Composer: 2.8.9
+- Git: 2.49.0.windows.1
+- MariaDB: 15.1 Distrib 10.4.32
+- Laravel: 11.48.0

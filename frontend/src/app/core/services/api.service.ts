@@ -35,8 +35,17 @@ export class ApiService {
     return this.http.post<T>(`${this.base}${path}`, body, { headers: this.headers() });
   }
 
+  postForm<T>(path: string, form: FormData): Observable<T> {
+    // Let browser set Content-Type boundary for multipart/form-data
+    return this.http.post<T>(`${this.base}${path}`, form, { headers: this.headers() });
+  }
+
   put<T>(path: string, body: unknown): Observable<T> {
     return this.http.put<T>(`${this.base}${path}`, body, { headers: this.headers() });
+  }
+
+  putForm<T>(path: string, form: FormData): Observable<T> {
+    return this.http.put<T>(`${this.base}${path}`, form, { headers: this.headers() });
   }
 
   delete<T>(path: string): Observable<T> {

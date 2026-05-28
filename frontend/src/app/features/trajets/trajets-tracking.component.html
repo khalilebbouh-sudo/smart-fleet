@@ -1,0 +1,105 @@
+<div class="page">
+  <a class="back" routerLink="/trajets">← {{ 'MISSIONS.BACK' | translate }}</a>
+
+  <div class="head">
+    <div>
+      <h2>{{ mission()?.title || ('NAV.TRAJETS' | translate) }}</h2>
+      <p class="muted">{{ 'TRAJETS.HINT' | translate }}</p>
+    </div>
+    <div class="actions">
+      <span class="pill" *ngIf="mission()" [class]="mission()!.status">{{ mission()!.status }}</span>
+      @if (!trackingWalk()) {
+        <button class="btn walk" type="button" (click)="startWalkTracking()" [disabled]="adding() || !geoSupported()">
+          {{ 'TRAJETS.START_GPS_WALK' | translate }}
+        </button>
+      } @else {
+        <button class="btn stop-walk" type="button" (click)="stopWalkTracking()">{{ 'TRAJETS.STOP_GPS_WALK' | translate }}</button>
+        <span class="pill walk-live">{{ 'TRAJETS.GPS_WALK_ON' | translate }}</span>
+      }
+      <button class="btn primary" type="button" (click)="addPoint()" [disabled]="adding() || trackingWalk()">
+        {{ 'TRAJETS.ADD_POINT' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <p class="walk-hint">{{ 'TRAJETS.GPS_WALK_HINT' | translate }}</p>
+
+  @if (error()) {
+    <div class="error">{{ error() }}</div>
+    <p class="geo-help">{{ 'TRAJETS.GEO_HELP' | translate }}</p>
+  }
+
+  <details class="manual-box">
+    <summary>{{ 'TRAJETS.MANUAL_COORDS' | translate }}</summary>
+    <div class="manual-row">
+      <label>
+        <span>Latitude</span>
+        <input type="number" [(ngModel)]="manualLat" step="any" placeholder="ex. 36.8065" />
+      </label>
+      <label>
+        <span>Longitude</span>
+        <input type="number" [(ngModel)]="manualLng" step="any" placeholder="ex. 10.1815" />
+      </label>
+      <button class="btn primary" type="button" (click)="addManualPoint()" [disabled]="adding()">{{ 'TRAJETS.ADD_MANUAL' | translate }}</button>
+    </div>
+  </details>
+
+  <div class="map-shell">
+    <aside class="nav-panel" aria-label="Navigation">
+      <div class="nav-panel-header">
+        <span class="nav-title">{{ 'TRAJETS.NAV_TITLE' | translate }}</span>
+        <span class="nav-badge">OSRM · OSM</span>
+      </div>
+      <p class="nav-desc">{{ 'TRAJETS.NAV_DESC' | translate }}</p>
+
+      <div class="nav-actions">
+        <button type="button" class="btn-nav secondary" (click)="beginPickStart()" [disabled]="routeLoading()">
+          {{ 'TRAJETS.PICK_START_MAP' | translate }}
+        </button>
+        <button type="button" class="btn-nav secondary" (click)="beginPickEnd()" [disabled]="routeLoading() || !startPoint()">
+          {{ 'TRAJETS.PICK_END_MAP' | translate }}
+        </button>
+        <button type="button" class="btn-nav ghost" (click)="useGpsAsStart()" [disabled]="routeLoading() || !geoSupported()">
+          {{ 'TRAJETS.GPS_AS_START' | translate }}
+        </button>
+      </div>
+
+      @if (pickStage() !== 'idle') {
+        <div class="pick-banner">{{ pickBannerText() }}</div>
+      }
+
+      @if (routeLoading()) {
+        <div class="route-stats muted">{{ 'TRAJETS.ROUTE_LOADING' | translate }}</div>
+      } @else if (routeDistanceKm() != null && routeDurationMin() != null) {
+        <div class="route-stats">
+          <div class="stat"><span class="stat-label">{{ 'TRAJETS.DISTANCE' | translate }}</span> {{ routeDistanceKm() | number : '1.1-1' }} km</div>
+          <div class="stat"><span class="stat-label">{{ 'TRAJETS.ETA' | translate }}</span> ~{{ routeDurationMin() }} min</div>
+        </div>
+      }
+
+      <label class="voice-row">
+        <input type="checkbox" [checked]="voiceOn()" (change)="toggleVoice($event)" />
+        <span>{{ 'TRAJETS.VOICE_NAV' | translate }}</span>
+      </label>
+
+      @if (primaryInstruction()) {
+        <div class="instruction-strip">{{ primaryInstruction() }}</div>
+      }
+
+      @if (rerouting()) {
+        <div class="reroute-strip">{{ 'TRAJETS.REROUTING' | translate }}</div>
+      }
+
+      <button
+        type="button"
+        class="btn-clear"
+        (click)="clearPlannedRoute()"
+        [disabled]="pickStage() === 'idle' && !hasPlannedRoute()"
+      >
+        {{ 'TRAJETS.CLEAR_ROUTE' | translate }}
+      </button>
+    </aside>
+
+    <div class="map" #mapEl></div>
+  </div>
+</div>

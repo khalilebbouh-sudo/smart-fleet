@@ -9,6 +9,7 @@ use App\Models\Maintenance;
 use App\Models\FuelRecord;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Database\Seeders\MissionSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,19 +20,19 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Admin',
                 'email' => 'admin@fleet.local',
                 'password' => Hash::make('password'),
-                'role' => 'administrator',
+                'role' => 'admin',
             ],
             [
                 'name' => 'Fleet Manager',
                 'email' => 'manager@fleet.local',
                 'password' => Hash::make('password'),
-                'role' => 'fleet_manager',
+                'role' => 'gestionnaire',
             ],
             [
                 'name' => 'Khalil',
                 'email' => 'khalil@gmail.com',
                 'password' => Hash::make('password'),
-                'role' => 'administrator',
+                'role' => 'admin',
             ],
         ];
 
@@ -116,5 +117,7 @@ class DatabaseSeeder extends Seeder
                 ]
             );
         }
+
+        $this->call(MissionSeeder::class);
     }
 }

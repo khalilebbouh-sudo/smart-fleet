@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
+import { AuthService } from '../../core/services/auth.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 interface Driver {
@@ -11,6 +12,7 @@ interface Driver {
   phone: string | null;
   license_number: string | null;
   address: string | null;
+  photo_url?: string | null;
   vehicle?: { id: number; brand: string; model: string; license_plate: string } | null;
 }
 
@@ -39,6 +41,7 @@ interface Paginated<T> {
           <table>
             <thead>
               <tr>
+                <th style="width: 52px;">Photo</th>
                 <th>{{ 'DRIVERS.NAME' | translate }}</th>
                 <th>{{ 'DRIVERS.PHONE' | translate }}</th>
                 <th>{{ 'DRIVERS.LICENSE' | translate }}</th>
@@ -48,21 +51,34 @@ interface Paginated<T> {
             </thead>
             <tbody>
               @if (loading) {
-                <tr><td colspan="5">{{ 'COMMON.LOADING' | translate }}</td></tr>
+                <tr><td colspan="6">{{ 'COMMON.LOADING' | translate }}</td></tr>
               } @else {
                 @for (d of drivers(); track d.id) {
                   <tr>
-                    <td><strong>{{ d.name }}</strong></td>
+                    <td class="photo-cell">
+                      <div class="avatar" [class.has-photo]="!!d.photo_url">
+                        @if (d.photo_url) {
+                          <img [src]="d.photo_url" alt="" />
+                        } @else {
+                          <span>{{ d.name.slice(0, 1).toUpperCase() }}</span>
+                        }
+                      </div>
+                    </td>
+                    <td>
+                      <strong>{{ d.name }}</strong>
+                    </td>
                     <td>{{ d.phone ?? '—' }}</td>
                     <td>{{ d.license_number ?? '—' }}</td>
                     <td>{{ d.vehicle ? d.vehicle.brand + ' ' + d.vehicle.model + ' (' + d.vehicle.license_plate + ')' : '—' }}</td>
                     <td>
                       <a [routerLink]="['/drivers', d.id, 'edit']" class="btn btn-sm">{{ 'COMMON.EDIT' | translate }}</a>
-                      <button type="button" class="btn btn-sm btn-danger" (click)="delete(d)">{{ 'COMMON.DELETE' | translate }}</button>
+                      @if (isAdmin()) {
+                        <button type="button" class="btn btn-sm btn-danger" (click)="delete(d)">{{ 'COMMON.DELETE' | translate }}</button>
+                      }
                     </td>
                   </tr>
                 } @empty {
-                  <tr><td colspan="5">{{ 'DRIVERS.NO_RESULTS' | translate }}</td></tr>
+                  <tr><td colspan="6">{{ 'DRIVERS.NO_RESULTS' | translate }}</td></tr>
                 }
               }
             </tbody>
@@ -85,6 +101,9 @@ interface Paginated<T> {
     .search-input { width: 100%; max-width: 320px; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-primary); color: var(--text-primary); }
     .btn-sm { padding: 0.35rem 0.6rem; font-size: 0.8125rem; margin-right: 0.5rem; }
     .pagination { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .photo-cell { width: 52px; }
+    .avatar { width: 30px; height: 30px; border-radius: 999px; border: 1px solid var(--border); background: #fff; display:grid; place-items:center; overflow:hidden; color: #0f766e; font-weight: 700; font-size: .85rem; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; display:block; }
   `],
 })
 export class DriverListComponent implements OnInit {
@@ -94,9 +113,13 @@ export class DriverListComponent implements OnInit {
   lastPage = signal(1);
   search = '';
 
+  /** Suppression conducteur : API réservée à l’admin */
+  isAdmin = () => this.auth.currentUser()?.role === 'admin';
+
   constructor(
     private api: ApiService,
     private t: TranslateService,
+    private auth: AuthService,
   ) {}
 
   ngOnInit(): void {

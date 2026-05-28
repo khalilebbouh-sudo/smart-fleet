@@ -15,25 +15,25 @@ class UserSeeder extends Seeder
                 'email' => 'admin@fleet.local',
                 'name' => 'Admin',
                 'password' => Hash::make('password'),
-                'role' => 'administrator',
+                'role' => 'admin',
             ],
             [
                 'email' => 'manager@fleet.local',
                 'name' => 'Fleet Manager',
                 'password' => Hash::make('password'),
-                'role' => 'fleet_manager',
+                'role' => 'gestionnaire',
             ],
             [
                 'email' => 'khalil@gmail.com',
                 'name' => 'Khalil',
                 'password' => Hash::make('password'),
-                'role' => 'administrator',
+                'role' => 'admin',
             ],
             [
                 'email' => 'admin@gmail.com',
                 'name' => 'Admin',
                 'password' => Hash::make('password'),
-                'role' => 'administrator',
+                'role' => 'admin',
             ],
         ];
 

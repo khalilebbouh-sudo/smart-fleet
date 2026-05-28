@@ -8,7 +8,9 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  role: 'administrator' | 'fleet_manager';
+  role: 'user' | 'gestionnaire' | 'chauffeur' | 'admin';
+  /** From API: sandbox = Mailtrap (no real inbox delivery), live = real SMTP */
+  mail_delivery?: 'sandbox' | 'live';
 }
 
 export interface LoginResponse {
@@ -105,6 +107,6 @@ export class AuthService {
   }
 
   isAdmin(): boolean {
-    return this.user()?.role === 'administrator';
+    return this.user()?.role === 'admin';
   }
 }

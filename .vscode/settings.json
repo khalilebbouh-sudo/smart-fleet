@@ -1,0 +1,23 @@
+{
+  "php.validate.enable": true,
+  "php.suggest.basic": true,
+  "intelephense.environment.includePaths": [
+    "${workspaceFolder}/backend/vendor"
+  ],
+  "intelephense.environment.phpVersion": "8.2.0",
+  "intelephense.files.maxSize": 5000000,
+  "intelephense.diagnostics.undefinedTypes": false,
+  "intelephense.diagnostics.undefinedFunctions": false,
+  "intelephense.diagnostics.undefinedConstants": false,
+  "intelephense.diagnostics.undefinedClassConstants": false,
+  "intelephense.diagnostics.undefinedMethods": false,
+  "intelephense.diagnostics.undefinedProperties": false,
+  "files.exclude": {
+    "**/backend/vendor": false
+  },
+  "search.exclude": {
+    "**/backend/vendor": true,
+    "**/backend/node_modules": true,
+    "**/frontend/node_modules": true
+  }
+}

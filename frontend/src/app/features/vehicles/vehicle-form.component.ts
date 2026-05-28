@@ -15,6 +15,16 @@ import { TranslateModule } from '@ngx-translate/core';
       <div class="card" style="max-width: 500px;">
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <div class="form-group">
+            <label>Photo</label>
+            @if (photoUrl && !photoFile) {
+              <div class="photo-row">
+                <img class="photo-preview" [src]="photoUrl" alt="Vehicle photo" />
+                <button type="button" class="btn" (click)="clearPhoto()">Remove</button>
+              </div>
+            }
+            <input type="file" accept="image/*" (change)="onPhotoSelected($event)" />
+          </div>
+          <div class="form-group">
             <label>{{ 'VEHICLES.FORM.BRAND' | translate }}</label>
             <input formControlName="brand" placeholder="Toyota" />
           </div>
@@ -55,6 +65,8 @@ import { TranslateModule } from '@ngx-translate/core';
   styles: [`
     .page-title { margin: 0 0 1rem 0; font-size: 1.5rem; font-weight: 600; }
     .form-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+    .photo-row { display:flex; align-items:center; gap: .75rem; margin-bottom: .5rem; }
+    .photo-preview { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; border: 1px solid #e5e7eb; }
   `],
 })
 export class VehicleFormComponent implements OnInit {
@@ -74,6 +86,9 @@ export class VehicleFormComponent implements OnInit {
   saving = false;
   isEdit = false;
   private id: number | null = null;
+  photoFile: File | null = null;
+  photoUrl: string | null = null;
+  removePhoto = false;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -81,18 +96,39 @@ export class VehicleFormComponent implements OnInit {
       this.id = +id;
       this.isEdit = true;
       this.api.get<ReturnType<typeof this.form.getRawValue>>(`/vehicles/${this.id}`).subscribe({
-        next: (v) => this.form.patchValue({ ...v, mileage: v.mileage ?? 0 }),
+        next: (v: any) => {
+          this.photoUrl = v.photo_url ?? null;
+          this.form.patchValue({ ...v, mileage: v.mileage ?? 0 });
+        },
       });
     }
+  }
+
+  onPhotoSelected(ev: Event): void {
+    const input = ev.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    this.photoFile = file;
+    this.removePhoto = false;
+  }
+
+  clearPhoto(): void {
+    this.photoFile = null;
+    this.photoUrl = null;
+    this.removePhoto = true;
   }
 
   onSubmit(): void {
     if (this.form.invalid || this.saving) return;
     this.saving = true;
-    const body = this.form.getRawValue();
+    const raw = this.form.getRawValue();
+    const form = new FormData();
+    Object.entries(raw).forEach(([k, v]) => form.append(k, String(v)));
+    if (this.photoFile) form.append('photo', this.photoFile);
+    if (this.removePhoto) form.append('remove_photo', '1');
+
     const req = this.id
-      ? this.api.put(`/vehicles/${this.id}`, body)
-      : this.api.post('/vehicles', body);
+      ? (form.append('_method', 'PUT'), this.api.postForm(`/vehicles/${this.id}`, form))
+      : this.api.postForm('/vehicles', form);
     req.subscribe({
       next: () => this.router.navigate(['/vehicles']),
       complete: () => (this.saving = false),

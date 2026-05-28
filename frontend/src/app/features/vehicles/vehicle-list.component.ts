@@ -14,6 +14,7 @@ interface Vehicle {
   year: number;
   mileage: number;
   status: string;
+  photo_url?: string | null;
   driver?: { id: number; name: string } | null;
 }
 
@@ -51,6 +52,7 @@ interface Paginated<T> {
           <table>
             <thead>
               <tr>
+                <th style="width: 52px;">Photo</th>
                 <th>{{ 'VEHICLES.PLATE' | translate }}</th>
                 <th>{{ 'VEHICLES.BRAND_MODEL' | translate }}</th>
                 <th>{{ 'VEHICLES.YEAR' | translate }}</th>
@@ -66,7 +68,18 @@ interface Paginated<T> {
               } @else {
                 @for (v of vehicles(); track v.id) {
                   <tr>
-                    <td><strong>{{ v.license_plate }}</strong></td>
+                    <td class="photo-cell">
+                      <div class="avatar" [class.has-photo]="!!v.photo_url">
+                        @if (v.photo_url) {
+                          <img [src]="v.photo_url" alt="" />
+                        } @else {
+                          <span>{{ v.license_plate.slice(0, 1).toUpperCase() }}</span>
+                        }
+                      </div>
+                    </td>
+                    <td>
+                      <strong>{{ v.license_plate }}</strong>
+                    </td>
                     <td>{{ v.brand }} {{ v.model }}</td>
                     <td>{{ v.year }}</td>
                     <td>{{ v.mileage | number }}</td>
@@ -104,6 +117,9 @@ interface Paginated<T> {
     .status-select { padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-primary); color: var(--text-primary); }
     .btn-sm { padding: 0.35rem 0.6rem; font-size: 0.8125rem; margin-right: 0.5rem; }
     .pagination { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .photo-cell { width: 52px; }
+    .avatar { width: 30px; height: 30px; border-radius: 10px; border: 1px solid var(--border); background: #fff; display:grid; place-items:center; overflow:hidden; color: #0f766e; font-weight: 700; font-size: .85rem; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; display:block; }
   `],
 })
 export class VehicleListComponent implements OnInit {

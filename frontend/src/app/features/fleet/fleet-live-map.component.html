@@ -1,0 +1,40 @@
+<div class="fleet-page">
+  <a class="back" routerLink="/dashboard">← {{ 'MISSIONS.BACK' | translate }}</a>
+
+  <div class="fleet-head">
+    <div>
+      <h2>{{ 'FLEET.LIVE_TITLE' | translate }}</h2>
+      <p class="muted">{{ 'FLEET.LIVE_SUB' | translate }}</p>
+    </div>
+    <div class="fleet-meta">
+      @if (lastRefresh()) {
+        <span class="pill">{{ 'FLEET.LAST_SYNC' | translate }} {{ lastRefresh() | date : 'mediumTime' }}</span>
+      }
+      <button type="button" class="btn" (click)="refresh()" [disabled]="loading()">{{ 'FLEET.REFRESH' | translate }}</button>
+    </div>
+  </div>
+
+  @if (loading() && rows().length === 0) {
+    <p class="muted">{{ 'COMMON.LOADING' | translate }}</p>
+  }
+
+  <div class="fleet-layout">
+    <aside class="fleet-list" aria-label="missions">
+      @if (rows().length === 0 && !loading()) {
+        <div class="empty">{{ 'FLEET.NO_ACTIVE' | translate }}</div>
+      }
+      @for (r of rows(); track r.mission_id) {
+        <div class="fleet-card">
+          <div class="fleet-card-title">#{{ r.mission_id }} — {{ r.title }}</div>
+          <div class="fleet-card-meta muted">
+            {{ r.driver?.name || '—' }} · {{ r.vehicle?.license_plate || '—' }}
+          </div>
+          <div class="fleet-card-meta muted small">{{ r.points_count }} {{ 'FLEET.POINTS' | translate }}</div>
+        </div>
+      }
+    </aside>
+    <div class="fleet-map-wrap">
+      <div class="map" #mapEl></div>
+    </div>
+  </div>
+</div>

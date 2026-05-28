@@ -1,0 +1,111 @@
+.fleet-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.back {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  color: #0f766e;
+  font-weight: 800;
+  text-decoration: none;
+}
+.fleet-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+h2 {
+  margin: 0;
+}
+.muted {
+  color: #64748b;
+  margin: 0.25rem 0 0;
+}
+.small {
+  font-size: 0.82rem;
+}
+.fleet-meta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.pill {
+  font-size: 0.78rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+}
+.btn {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fleet-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) 1fr;
+  gap: 1rem;
+  align-items: stretch;
+}
+@media (max-width: 900px) {
+  .fleet-layout {
+    grid-template-columns: 1fr;
+  }
+  .fleet-map-wrap .map {
+    height: 48vh !important;
+  }
+}
+
+.fleet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: min(68vh, 640px);
+  overflow: auto;
+}
+.fleet-card {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+}
+.fleet-card-title {
+  font-weight: 850;
+  font-size: 0.92rem;
+  color: #0f172a;
+}
+.fleet-card-meta {
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+.empty {
+  padding: 1rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.fleet-map-wrap {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+.map {
+  height: min(68vh, 560px);
+  width: 100%;
+}
+
+:host ::ng-deep .leaflet-container {
+  background: #f8fafc;
+}

@@ -22,6 +22,16 @@ interface VehicleOption {
       <div class="card" style="max-width: 500px;">
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <div class="form-group">
+            <label>Photo</label>
+            @if (photoUrl && !photoFile) {
+              <div class="photo-row">
+                <img class="photo-preview" [src]="photoUrl" alt="Driver photo" />
+                <button type="button" class="btn" (click)="clearPhoto()">Remove</button>
+              </div>
+            }
+            <input type="file" accept="image/*" (change)="onPhotoSelected($event)" />
+          </div>
+          <div class="form-group">
             <label>{{ 'DRIVERS.FORM.NAME' | translate }}</label>
             <input formControlName="name" [placeholder]="'DRIVERS.FORM.FULL_NAME' | translate" />
           </div>
@@ -59,6 +69,8 @@ interface VehicleOption {
   styles: [`
     .page-title { margin: 0 0 1rem 0; font-size: 1.5rem; font-weight: 600; }
     .form-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+    .photo-row { display:flex; align-items:center; gap: .75rem; margin-bottom: .5rem; }
+    .photo-preview { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; border: 1px solid #e5e7eb; }
   `],
 })
 export class DriverFormComponent implements OnInit {
@@ -74,6 +86,9 @@ export class DriverFormComponent implements OnInit {
     address: this.fb.nonNullable.control(''),
     vehicle_id: this.fb.control<number | null>(null),
   });
+  photoFile: File | null = null;
+  photoUrl: string | null = null;
+  removePhoto = false;
   vehicles: VehicleOption[] = [];
   saving = false;
   isEdit = false;
@@ -88,24 +103,48 @@ export class DriverFormComponent implements OnInit {
       this.id = +id;
       this.isEdit = true;
       this.api.get<any>(`/drivers/${this.id}`).subscribe({
-        next: (d) => this.form.patchValue({
-          name: d.name,
-          phone: d.phone ?? '',
-          license_number: d.license_number ?? '',
-          address: d.address ?? '',
-          vehicle_id: d.vehicle_id ?? null,
-        }),
+        next: (d) => {
+          this.photoUrl = d.photo_url ?? null;
+          this.form.patchValue({
+            name: d.name,
+            phone: d.phone ?? '',
+            license_number: d.license_number ?? '',
+            address: d.address ?? '',
+            vehicle_id: d.vehicle_id ?? null,
+          });
+        },
       });
     }
+  }
+
+  onPhotoSelected(ev: Event): void {
+    const input = ev.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    this.photoFile = file;
+    this.removePhoto = false;
+  }
+
+  clearPhoto(): void {
+    this.photoFile = null;
+    this.photoUrl = null;
+    this.removePhoto = true;
   }
 
   onSubmit(): void {
     if (this.form.invalid || this.saving) return;
     this.saving = true;
-    const body = { ...this.form.getRawValue(), vehicle_id: this.form.get('vehicle_id')?.value ?? null };
+    const raw = { ...this.form.getRawValue(), vehicle_id: this.form.get('vehicle_id')?.value ?? null };
+    const form = new FormData();
+    Object.entries(raw).forEach(([k, v]) => {
+      if (v === null || v === undefined) return;
+      form.append(k, String(v));
+    });
+    if (this.photoFile) form.append('photo', this.photoFile);
+    if (this.removePhoto) form.append('remove_photo', '1');
+
     const req = this.id
-      ? this.api.put(`/drivers/${this.id}`, body)
-      : this.api.post('/drivers', body);
+      ? (form.append('_method', 'PUT'), this.api.postForm(`/drivers/${this.id}`, form))
+      : this.api.postForm('/drivers', form);
     req.subscribe({
       next: () => this.router.navigate(['/drivers']),
       complete: () => (this.saving = false),

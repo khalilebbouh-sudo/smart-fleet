@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Driver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DriverController extends Controller
 {
@@ -35,7 +36,12 @@ class DriverController extends Controller
             'license_number' => 'nullable|string|max:255',
             'address' => 'nullable|string',
             'vehicle_id' => 'nullable|exists:vehicles,id',
+            'photo' => 'nullable|image|max:4096',
         ]);
+
+        if ($request->hasFile('photo')) {
+            $validated['photo_path'] = $request->file('photo')->store('drivers', 'public');
+        }
 
         $driver = Driver::create($validated);
 
@@ -56,7 +62,23 @@ class DriverController extends Controller
             'license_number' => 'nullable|string|max:255',
             'address' => 'nullable|string',
             'vehicle_id' => 'nullable|exists:vehicles,id',
+            'photo' => 'nullable|image|max:4096',
+            'remove_photo' => 'nullable|boolean',
         ]);
+
+        if ($request->boolean('remove_photo')) {
+            if ($driver->photo_path) {
+                Storage::disk('public')->delete($driver->photo_path);
+            }
+            $validated['photo_path'] = null;
+        }
+
+        if ($request->hasFile('photo')) {
+            if ($driver->photo_path) {
+                Storage::disk('public')->delete($driver->photo_path);
+            }
+            $validated['photo_path'] = $request->file('photo')->store('drivers', 'public');
+        }
 
         $driver->update($validated);
 
@@ -65,6 +87,9 @@ class DriverController extends Controller
 
     public function destroy(Driver $driver): JsonResponse
     {
+        if ($driver->photo_path) {
+            Storage::disk('public')->delete($driver->photo_path);
+        }
         $driver->delete();
         return response()->json(null, 204);
     }

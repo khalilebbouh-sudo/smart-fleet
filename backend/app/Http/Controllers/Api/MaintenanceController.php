@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Maintenance;
 use App\Models\Vehicle;
+use App\Notifications\MaintenanceCreatedNotification;
+use App\Services\EmailService;
+use App\Services\PusherService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -39,7 +43,25 @@ class MaintenanceController extends Controller
 
         $maintenance = Maintenance::create($validated);
 
-        return response()->json($maintenance->load('vehicle'), 201);
+        $maintenance->load('vehicle');
+        $targets = User::query()->whereIn('role', ['admin', 'gestionnaire'])->get();
+        $notification = new MaintenanceCreatedNotification($maintenance);
+        $pusher = app(PusherService::class);
+
+        foreach ($targets as $t) {
+            $t->notify($notification);
+            $pusher->notifyUser($t->id, [
+                'data' => $notification->toArray($t),
+                'unread_count' => $t->unreadNotifications()->count(),
+            ]);
+            try {
+                app(EmailService::class)->sendMaintenanceCreated($t, $maintenance);
+            } catch (\Throwable $e) {
+                // logged by EmailService
+            }
+        }
+
+        return response()->json($maintenance, 201);
     }
 
     public function show(Maintenance $maintenance): JsonResponse

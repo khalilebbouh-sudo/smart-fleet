@@ -9,9 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
+use App\Services\EmailService;
 
 class AuthController extends Controller
 {
@@ -33,7 +35,8 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'fleet_manager',
+            // Security: never allow self-assigning privileged roles during registration.
+            'role' => 'user',
         ]);
 
         $token = $user->createToken('auth')->plainTextToken;
@@ -44,6 +47,7 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'role' => $user->role,
+                'mail_delivery' => config('mail.real_inbox') ? 'live' : 'sandbox',
             ],
             'token' => $token,
             'token_type' => 'Bearer',
@@ -73,6 +77,7 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'role' => $user->role,
+                'mail_delivery' => config('mail.real_inbox') ? 'live' : 'sandbox',
             ],
             'token' => $token,
             'token_type' => 'Bearer',
@@ -95,6 +100,42 @@ class AuthController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'role' => $user->role,
+            'photo_url' => $user->photo_url,
+            'mail_delivery' => config('mail.real_inbox') ? 'live' : 'sandbox',
+        ]);
+    }
+
+    public function updatePhoto(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'photo' => 'required|image|max:4096',
+        ]);
+
+        $user = $request->user();
+        if ($user->photo_path) {
+            Storage::disk('public')->delete($user->photo_path);
+        }
+
+        $path = $request->file('photo')->store('users', 'public');
+        $user->update(['photo_path' => $path]);
+
+        return response()->json([
+            'message' => 'Photo updated',
+            'photo_url' => $user->fresh()->photo_url,
+        ]);
+    }
+
+    public function deletePhoto(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        if ($user->photo_path) {
+            Storage::disk('public')->delete($user->photo_path);
+        }
+        $user->update(['photo_path' => null]);
+
+        return response()->json([
+            'message' => 'Photo deleted',
+            'photo_url' => null,
         ]);
     }
 
@@ -106,23 +147,35 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if ($user) {
-            $token = Str::random(64);
-            $frontendUrl = rtrim(env('FRONTEND_URL', 'http://localhost:4200'), '/');
-            $resetUrl = "{$frontendUrl}/reset-password?token=" . urlencode($token) . '&email=' . urlencode($user->email);
-
-            DB::table('password_reset_tokens')->updateOrInsert(
-                ['email' => $user->email],
-                ['token' => Hash::make($token), 'created_at' => now()]
-            );
-            // In production, send $resetUrl by email instead of returning it
-            return response()->json([
-                'message' => 'If that email exists, we have sent a reset link.',
-                'reset_url' => $resetUrl, // for development; remove in production or only when APP_DEBUG
-            ]);
+        // Always return a generic message (avoid user enumeration).
+        // If SMTP is not configured, frontend will get a clear error (APP_DEBUG can help during setup).
+        if (! $user) {
+            return response()->json(['message' => 'If that email exists, we have sent a reset link.']);
         }
 
-        return response()->json(['message' => 'If that email exists, we have sent a reset link.']);
+        $token = Str::random(64);
+        $frontendUrl = rtrim(env('FRONTEND_URL', 'http://localhost:4200'), '/');
+        $resetUrl = "{$frontendUrl}/reset-password?token=" . urlencode($token) . '&email=' . urlencode($user->email);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            ['token' => Hash::make($token), 'created_at' => now()]
+        );
+
+        try {
+            app(EmailService::class)->sendPasswordReset($user, $resetUrl);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Failed to send reset email. Check SMTP configuration.',
+                'error' => app()->hasDebugModeEnabled() ? $e->getMessage() : null,
+            ], 500);
+        }
+
+        $payload = ['message' => 'If that email exists, we have sent a reset link.'];
+        if (app()->hasDebugModeEnabled()) {
+            $payload['reset_url'] = $resetUrl; // helpful for local testing
+        }
+        return response()->json($payload);
     }
 
     public function resetPassword(Request $request): JsonResponse

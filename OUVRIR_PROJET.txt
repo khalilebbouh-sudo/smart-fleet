@@ -1,0 +1,190 @@
+================================================================================
+  SMART FLEET - GUIDE DÉTAILLÉ : SAUVEGARDER ET OUVRIR LE PROJET
+================================================================================
+
+Ce fichier explique en détail :
+  • Comment ENREGISTRER ton travail (pour le retrouver demain).
+  • Comment OUVRIR et LANCER le projet à chaque fois.
+
+================================================================================
+  PARTIE 1 : ENREGISTRER LE PROJET (SAUVEGARDE POUR DEMAIN)
+================================================================================
+
+Pour que ton travail soit conservé et que tu puisses le retrouver demain, fais
+les étapes suivantes AVANT de fermer Cursor ou ton PC.
+
+--- Étape 1.1 : Sauvegarder tous les fichiers dans Cursor ---
+
+  • Raccourci clavier : Ctrl + K puis S
+    (tu appuies sur Ctrl, tu gardes enfoncé, tu appuies sur K, tu relâches,
+     puis tu appuies sur S)
+  • Ou : Ctrl + S sur chaque fichier ouvert que tu as modifié.
+  • En bas à gauche de Cursor, si tu vois un point blanc à côté du nom du
+    fichier, cela signifie que le fichier n’est pas encore sauvegardé :
+    sauvegarde-le avec Ctrl+S.
+
+  Pourquoi : tant que tu ne sauvegardes pas, les changements ne sont que en
+  mémoire. Si tu fermes le fichier ou Cursor sans sauvegarder, tu peux perdre
+  tes modifications.
+
+--- Étape 1.2 : Enregistrer dans Git (créer un "point de sauvegarde") ---
+
+  1. Ouvre un terminal dans Cursor :
+     • Menu Terminal → New Terminal
+     • Ou raccourci : Ctrl + ù (ou Ctrl + `)
+
+  2. Vérifie que tu es à la racine du projet. Tu dois voir un chemin du type :
+       PS C:\Users\khalil\Desktop\projet pff>
+     Si tu es ailleurs, tape :
+       cd "c:\Users\khalil\Desktop\projet pff"
+     puis Entrée.
+
+  3. Ajouter tous les fichiers modifiés à la "staging area" :
+       git add .
+     (il y a un espace entre "add" et le point)
+     Puis Entrée.
+     Explication : "git add ." dit à Git : "prépare tous les fichiers modifiés
+     ou nouveaux pour le prochain enregistrement".
+
+  4. Créer l’enregistrement (commit) avec un message :
+       git commit -m "Sauvegarde Smart Fleet"
+     Puis Entrée.
+     Explication : "git commit" enregistre un instantané de ton projet. Le
+     message "-m "Sauvegarde Smart Fleet"" décrit ce que tu as fait (tu peux
+     changer le texte entre guillemets si tu veux).
+
+  5. Si Git affiche "nothing to commit, working tree clean", c’est normal :
+     soit tu n’as rien modifié, soit tout est déjà commité.
+
+  Pourquoi : Git garde l’historique de ton projet. Si demain tu perds un fichier
+  ou tu veux revenir en arrière, tu peux utiliser Git pour récupérer une
+  ancienne version.
+
+--- Étape 1.3 : Ne pas supprimer le dossier du projet ---
+
+  • Le projet doit rester à cet emplacement :
+      c:\Users\khalil\Desktop\projet pff
+  • Ne supprime pas ce dossier, ne le déplace pas sans le recopier ailleurs
+    (sinon tu perds le projet ou les chemins dans les instructions ne
+    correspondront plus).
+
+  Résumé sauvegarde :
+    1) Ctrl+K puis S (ou Ctrl+S sur chaque fichier modifié).
+    2) Terminal : cd "c:\Users\khalil\Desktop\projet pff"
+    3) git add .
+    4) git commit -m "Sauvegarde Smart Fleet"
+    5) Garder le dossier "projet pff" sur le PC.
+
+================================================================================
+  PARTIE 2 : À CHAQUE OUVERTURE DU PROJET (COMMENT LANCER L’APPLICATION)
+================================================================================
+
+Chaque fois que tu rouvres le projet (par exemple demain), tu dois lancer
+DEUX serveurs : un pour le backend (API Laravel), un pour le frontend
+(Angular). Ils doivent tourner en même temps dans deux terminaux différents.
+
+--- Étape 2.1 : Ouvrir le projet dans Cursor ---
+
+  • Lancer Cursor.
+  • Menu File → Open Folder (ou Ouvrir un dossier).
+  • Choisir le dossier : c:\Users\khalil\Desktop\projet pff
+  • Cliquer sur "Sélectionner un dossier" (ou "Select Folder").
+
+--- Étape 2.2 : Premier terminal – Backend (API Laravel) ---
+
+  1. Ouvrir un premier terminal :
+     Terminal → New Terminal (ou Ctrl + ù / Ctrl + `).
+
+  2. Se placer dans le dossier backend :
+       cd "c:\Users\khalil\Desktop\projet pff\backend"
+     Puis Entrée.
+
+  3. Lancer le serveur PHP :
+       php artisan serve
+     Puis Entrée.
+
+  4. Tu dois voir un message du type :
+       INFO  Server running on [http://127.0.0.1:8000]
+       Press Ctrl+C to stop the server
+     → Ne ferme pas ce terminal. L’API tourne sur le port 8000.
+
+  5. Si tu vois une erreur du type "php n'est pas reconnu", vérifie que PHP
+     est bien installé et que son dossier est dans le PATH Windows.
+
+--- Étape 2.3 : Deuxième terminal – Frontend (Angular) ---
+
+  1. Ouvrir un DEUXIÈME terminal (sans fermer le premier) :
+     • Dans la zone Terminal, cliquer sur le petit "+" ou "Split" pour un
+       nouvel onglet terminal,
+     • Ou : Terminal → New Terminal encore une fois.
+
+  2. Se placer dans le dossier frontend :
+       cd "c:\Users\khalil\Desktop\projet pff\frontend"
+     Puis Entrée.
+
+  3. Lancer le serveur Angular :
+       npm start
+     Puis Entrée.
+
+  4. Attendre la fin de la compilation. Tu verras quelque chose comme :
+       Application bundle generation complete.
+       Local: http://localhost:4200/
+     (Si le port 4200 est déjà utilisé, Angular peut proposer un autre port,
+      par exemple 55845 ; dans ce cas utilise ce port dans le navigateur.)
+
+  5. Ne ferme pas ce terminal non plus. Le frontend tourne sur le port 4200
+     (ou le port indiqué).
+
+--- Étape 2.4 : Ouvrir l’application dans le navigateur ---
+
+  1. Ouvre ton navigateur (Chrome, Edge, Firefox, etc.).
+
+  2. Dans la barre d’adresse, tape :
+       http://localhost:4200
+     (ou http://localhost:55845 si Angular a utilisé le port 55845.)
+     Puis Entrée.
+
+  3. Tu dois voir la page de connexion "Smart Fleet".
+
+  4. Pour te connecter, utilise par exemple :
+     • Email : admin@gmail.com
+     • Mot de passe : password
+     (Ou : khalil@gmail.com / password)
+
+--- Résumé à chaque ouverture ---
+
+  Terminal 1 (Backend) :
+    cd "c:\Users\khalil\Desktop\projet pff\backend"
+    php artisan serve
+
+  Terminal 2 (Frontend) :
+    cd "c:\Users\khalil\Desktop\projet pff\frontend"
+    npm start
+
+  Navigateur : http://localhost:4200 (ou le port affiché par Angular)
+
+  Connexion : admin@gmail.com / password
+
+--- Pour arrêter les serveurs ---
+
+  • Dans chaque terminal où un serveur tourne, appuie sur : Ctrl + C
+  • Cela arrête le serveur dans ce terminal. Tu peux fermer le terminal
+    après.
+
+================================================================================
+  RÉCAPITULATIF
+================================================================================
+
+  SAUVEGARDER (avant de quitter / pour demain) :
+    1. Ctrl+K puis S (sauvegarder les fichiers).
+    2. git add .
+    3. git commit -m "Sauvegarde Smart Fleet"
+    4. Ne pas supprimer le dossier du projet.
+
+  OUVRIR ET LANCER (à chaque fois) :
+    1. Ouvrir le dossier "projet pff" dans Cursor.
+    2. Terminal 1 : cd backend → php artisan serve (garder ouvert).
+    3. Terminal 2 : cd frontend → npm start (garder ouvert).
+    4. Navigateur : http://localhost:4200 et se connecter.
+
+================================================================================

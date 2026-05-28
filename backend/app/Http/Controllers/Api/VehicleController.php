@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Vehicle;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class VehicleController extends Controller
 {
@@ -43,7 +44,12 @@ class VehicleController extends Controller
             'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),
             'mileage' => 'required|integer|min:0',
             'status' => 'required|in:active,maintenance,inactive',
+            'photo' => 'nullable|image|max:4096',
         ]);
+
+        if ($request->hasFile('photo')) {
+            $validated['photo_path'] = $request->file('photo')->store('vehicles', 'public');
+        }
 
         $vehicle = Vehicle::create($validated);
 
@@ -65,7 +71,23 @@ class VehicleController extends Controller
             'year' => 'sometimes|integer|min:1900|max:' . (date('Y') + 1),
             'mileage' => 'sometimes|integer|min:0',
             'status' => 'sometimes|in:active,maintenance,inactive',
+            'photo' => 'nullable|image|max:4096',
+            'remove_photo' => 'nullable|boolean',
         ]);
+
+        if ($request->boolean('remove_photo')) {
+            if ($vehicle->photo_path) {
+                Storage::disk('public')->delete($vehicle->photo_path);
+            }
+            $validated['photo_path'] = null;
+        }
+
+        if ($request->hasFile('photo')) {
+            if ($vehicle->photo_path) {
+                Storage::disk('public')->delete($vehicle->photo_path);
+            }
+            $validated['photo_path'] = $request->file('photo')->store('vehicles', 'public');
+        }
 
         $vehicle->update($validated);
 
@@ -74,6 +96,9 @@ class VehicleController extends Controller
 
     public function destroy(Vehicle $vehicle): JsonResponse
     {
+        if ($vehicle->photo_path) {
+            Storage::disk('public')->delete($vehicle->photo_path);
+        }
         $vehicle->delete();
         return response()->json(null, 204);
     }
