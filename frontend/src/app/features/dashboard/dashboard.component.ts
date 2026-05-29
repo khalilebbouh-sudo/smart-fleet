@@ -17,6 +17,7 @@ import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
 import { TndCurrencyPipe } from '../../core/pipes/tnd-currency.pipe';
 import { MapWidgetComponent } from './map-widget.component';
+import { MaintenancePredictionWidgetComponent } from './maintenance-prediction-widget/maintenance-prediction-widget.component';
 import {
   ApexAxisChartSeries,
   ApexChart,
@@ -83,7 +84,7 @@ type DriverRow = { id?: number; name?: string; email?: string };
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, TranslateModule, RouterLink, TndCurrencyPipe, MapWidgetComponent, NgApexchartsModule],
+  imports: [CommonModule, TranslateModule, RouterLink, TndCurrencyPipe, MapWidgetComponent, NgApexchartsModule, MaintenancePredictionWidgetComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="container saas" [class.dash-wide]="canFleet()">
@@ -500,6 +501,10 @@ type DriverRow = { id?: number; name?: string; email?: string };
                   <div class="ph-card"></div>
                   <div class="ph-card"></div>
                 </div>
+              }
+
+              @if (canFleet()) {
+                <app-maintenance-prediction-widget />
               }
             }
           </div>

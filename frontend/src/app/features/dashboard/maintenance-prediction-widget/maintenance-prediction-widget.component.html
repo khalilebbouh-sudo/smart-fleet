@@ -1,0 +1,98 @@
+<section class="pred-card">
+  <div class="pred-head">
+    <div class="pred-title-group">
+      <span class="pred-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0-1.4 0l-7.1 7.1a2 2 0 0 0-.5 1.9l.3 1.1 1.1.3a2 2 0 0 0 1.9-.5l7.1-7.1a1 1 0 0 0 0-1.4Z"/>
+          <path d="M15 7l2-2"/><path d="M19 11l2-2"/>
+        </svg>
+      </span>
+      <div>
+        <div class="pred-title">Maintenance prédictive</div>
+        <div class="pred-sub">Prévisions IA par véhicule</div>
+      </div>
+    </div>
+    @if (urgentCount() > 0) {
+      <span class="pred-badge">{{ urgentCount() }} urgent{{ urgentCount() > 1 ? 's' : '' }}</span>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="pred-list">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="pred-sk"></div>
+      }
+    </div>
+  } @else if (error()) {
+    <div class="pred-empty pred-err">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="20" height="20" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.3 3.3 1.6 18a2 2 0 0 0 1.7 3h17.4a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0Z"/>
+        <path d="M12 9v4"/><path d="M12 17h.01"/>
+      </svg>
+      {{ error() }}
+    </div>
+  } @else if (predictions().length === 0) {
+    <div class="pred-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="20" height="20" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/>
+      </svg>
+      Aucune prédiction disponible
+    </div>
+  } @else {
+    <div class="pred-list">
+      @for (p of predictions(); track trackPrediction($index, p)) {
+        <div class="pred-row" [class.is-refreshing]="refreshingIds().has(p.id)">
+
+          <div class="pred-photo">
+            @if (p.vehicle?.photo_url) {
+              <img [src]="p.vehicle!.photo_url" [alt]="p.vehicle!.license_plate" />
+            } @else {
+              <span class="pred-photo-ic" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 16l1-4 2-6h12l2 6 1 4"/>
+                  <path d="M6 12h12"/>
+                  <path d="M7 16a2 2 0 0 0 4 0"/>
+                  <path d="M13 16a2 2 0 0 0 4 0"/>
+                </svg>
+              </span>
+            }
+          </div>
+
+          <div class="pred-info">
+            <div class="pred-plate">{{ p.vehicle?.license_plate ?? ('#' + p.vehicle_id) }}</div>
+            <div class="pred-model">{{ p.vehicle ? (p.vehicle.brand + ' ' + p.vehicle.model) : '—' }}</div>
+          </div>
+
+          <div class="pred-days">
+            <div class="pred-days-val">{{ p.predicted_days }}</div>
+            <div class="pred-days-lbl">jours</div>
+          </div>
+
+          <div class="pred-date">{{ formatDate(p.predicted_date) }}</div>
+
+          <span class="pred-urgency"
+            [class.faible]="p.urgency_level === 'faible'"
+            [class.moyen]="p.urgency_level === 'moyen'"
+            [class.eleve]="p.urgency_level === 'eleve'">
+            {{ urgencyLabel(p.urgency_level) }}
+          </span>
+
+          <button
+            class="pred-refresh"
+            [disabled]="refreshingIds().has(p.id)"
+            (click)="refresh(p)"
+            title="Actualiser la prédiction">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"
+              stroke-linecap="round" stroke-linejoin="round"
+              [class.spin]="refreshingIds().has(p.id)">
+              <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+              <path d="M21 3v6h-6"/>
+            </svg>
+            Actualiser
+          </button>
+
+        </div>
+      }
+    </div>
+  }
+</section>

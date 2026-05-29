@@ -19,17 +19,17 @@ class MaintenancePredictionController extends Controller
     {
         $predictions = MaintenancePrediction::query()
             ->with('vehicle')
-            ->whereIn('id', function ($sub) {
-                $sub->selectRaw('MAX(id)')
+            ->whereIn('maintenance_predictions.id', function ($sub) {
+                $sub->selectRaw('MAX(maintenance_predictions.id)')
                     ->from('maintenance_predictions')
                     ->join('vehicles', 'vehicles.id', '=', 'maintenance_predictions.vehicle_id')
                     ->where('vehicles.status', 'active')
                     ->groupBy('maintenance_predictions.vehicle_id');
             })
-            ->orderByDesc('created_at')
+            ->orderByDesc('maintenance_predictions.created_at')
             ->get();
 
-        return response()->json($predictions);
+        return response()->json(['data' => $predictions]);
     }
 
     /**
@@ -48,7 +48,7 @@ class MaintenancePredictionController extends Controller
 
         $prediction->load('vehicle');
 
-        return response()->json($prediction, 201);
+        return response()->json(['data' => $prediction], 201);
     }
 
     /**
